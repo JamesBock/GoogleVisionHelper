@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LabelEndpoint
+namespace LanguageRecognition
 {
     public static class OCRMethods
     {
@@ -18,7 +18,7 @@ namespace LabelEndpoint
             var image = Image.FromUri(uri);
             var client = ImageAnnotatorClient.Create();
             var text = await client.DetectDocumentTextAsync(image);
-
+            var searchTerms = new string[] { "Lead", "1978", "Protection", "EPA's", "Phoenix" };
             Console.WriteLine($"Text: {text.Text}");
             Console.WriteLine(text.Pages.Select(p => p.Confidence.ToString()));
 
@@ -64,7 +64,22 @@ namespace LabelEndpoint
                 }
                 Utilities.AddText(fs, "\n\n\n *******************End of symbols********************\n\n\n");
 
-                Utilities.AddText(fs, $"texas appeared {Utilities.SearchWordCount(text, "texas")} times");
+                Utilities.AddText(fs, $"texas appeared {Utilities.SearchWordCount(text, "texas")} times \n\n\n");
+
+                var keywords = Utilities.SearchWordCollection(text, searchTerms);
+
+                Utilities.AddText(fs, $"*************Sensitive keywords found*********\n\n");
+                foreach (var item in keywords)
+                {
+                    Utilities.AddText(fs, $"{item.Item1} found {item.Item2} times\n");
+                }
+                var keywordsExp = Utilities.SearchWordCollectionExp(text, searchTerms );
+
+                Utilities.AddText(fs, $"*************Experiment keywords found*********\n\n");
+                foreach (var item in keywordsExp)
+                {
+                    Utilities.AddText(fs, $"{item.Item1} found {item.Item3} times with {item.Item2} confidence\n");
+                }
 
             }
 

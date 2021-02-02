@@ -17,10 +17,16 @@ namespace LanguageRecognition
         {
             var image = Image.FromUri(uri);
             var client = ImageAnnotatorClient.Create();
+            var safeResponse = await client.DetectSafeSearchAsync(image);
             var response = await client.DetectLabelsAsync(image);
             using (var text = File.Create($@"{Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))}\output\{title}.txt"))
             {
-                Utilities.AddText(text, $"Title: {title}\n\n");
+                Utilities.AddText(text, $"Title: {title}\n{uri}\n ");
+                Utilities.AddText(text, $"Adult? : {safeResponse.Adult.ToString()} Confidence: {safeResponse.AdultConfidence.ToString("G5")}\n");
+                Utilities.AddText(text, $"Spoof? : {safeResponse.Spoof.ToString()} Confidence: {safeResponse.SpoofConfidence.ToString("G6")}\n");
+                Utilities.AddText(text, $"Medical? : {safeResponse.Medical.ToString()} Confidence: {safeResponse.MedicalConfidence.ToString("n6")}\n");
+                Utilities.AddText(text, $"Violence? :{safeResponse.Violence.ToString()} Confidence: {safeResponse.ViolenceConfidence.ToString("N6")}\n");
+                Utilities.AddText(text, $"Racy? :{safeResponse.Racy.ToString()} Confidence: {safeResponse.RacyConfidence.ToString("G6")}\n\r");
                 foreach (var annotation in response)
                 {
                     if (annotation.Description != null)
